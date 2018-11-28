@@ -1,14 +1,6 @@
-local firstSpawn = true
----------------------------------------------------------------------------
--- Spawning player into server.. Setup char menu etc..
----------------------------------------------------------------------------
-AddEventHandler('playerSpawned', function()
-    if firstSpawn then
-    Citizen.Wait(555)
-        TriggerServerEvent("ISRP_Characters:RequestOpenMenu")
-        firstSpawn = false
-    end
-end)
+RegisterCommand("characters", function(source, raw, args)
+	TriggerServerEvent("ISRP_Characters:RequestOpenMenu")
+end, false)
 
 ---------------------------------------------------------------------------
 -- NUI EVENTS
