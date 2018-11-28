@@ -25,6 +25,7 @@ server_script "config.lua"
 server_script "server.lua"
 
 client_script "config.lua"
+client_script "fivem.lua"
 client_script "client.lua"
 
 client_script "cameras/cameras.lua"
