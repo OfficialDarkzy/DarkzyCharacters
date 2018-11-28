@@ -10,13 +10,13 @@ ExternalConfig.Database = {
     host: "localhost",
     user: "root",
     password: "",
-    database: "isrp"
+    database: "enteryourdatabasenamehere"
 };
 
 // API Configs
 ExternalConfig.API = {
     route: "/external/api",
-    secret: "isrp_dev_pass!"
+    secret: "enterthepasswordhere"
 }
 
 module.exports.config = ExternalConfig;

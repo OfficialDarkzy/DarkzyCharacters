@@ -1,11 +1,11 @@
 --[[
-   Created By: Darkzy
+   Created By: Darkzy and Xander1998
 --]]
 
 resource_manifest_version '44febabe-d386-4d18-afbe-5e627f4af937'
 
 dependencies {
-	"isrp_base"
+	"externalsql"
 }
 
 ui_page "ui/index.html"
@@ -32,4 +32,3 @@ client_script "modifier/character_modifier.lua"
 
 -- Exports
 server_export "GetCharacterData"
-server_export "GetCharacterMoney"

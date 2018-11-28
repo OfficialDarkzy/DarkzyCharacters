@@ -13,11 +13,11 @@
 
 
 -- Dumping database structure for isrp
-CREATE DATABASE IF NOT EXISTS `darkzyCharacters` /*!40100 DEFAULT CHARACTER SET latin2 */;
-USE `darkzyCharacters`;
+CREATE DATABASE IF NOT EXISTS `charactersByDarkzy` /*!40100 DEFAULT CHARACTER SET latin2 */;
+USE `characters`;
 
 -- Dumping structure for table isrp.characters
-CREATE TABLE IF NOT EXISTS `charactersByDarkzy` (
+CREATE TABLE IF NOT EXISTS `characters` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `age` int(255) NOT NULL,
