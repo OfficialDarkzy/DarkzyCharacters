@@ -19,8 +19,6 @@ Please credit myself and @xander1998 and do not claim this code to be yours, thi
     The second thing you need to do is drop the characters folder with the __resource.lua into your resources folder and add it to your server.cfg.
     
     The Third thing you need to do is import the given SQL Query into your database, it should do all you need with errors, but if there is something massively scuffed please let me know! And I will sort it my end.
-    
-    The Fourth thing to do is remove "fivem" resource from your server.cfg. The new update now does it for you, the fivem.lua is now controlling it.
 
 
 
