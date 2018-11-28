@@ -64,7 +64,7 @@ AddEventHandler("ISRP_Characters:CreateCharacter", function(newCharacterData)
 					TriggerEvent("ISRP_Characters:UpdateCharactersInUI", src)
 				end)
 			else
-				TriggerClientEvent("ISRP_Notification:Error", src, "ISRP Characters", "You have reached the maximum amount of characters allowed", 7500, false, "rightCenter")
+				print("error max amount of characters")
 			end
 		end)
 	end)
@@ -136,32 +136,6 @@ AddEventHandler("ISRP_Characters:SaveCharacter", function(characterData)
 			local spawn = ISRPCharactersConfig.SpawnLocations[math.random(1, #ISRPCharactersConfig.SpawnLocations)]
 			TriggerClientEvent("ISRP_Characters:LoadSelectedCharacter", src, characterData.model, json.encode(characterData.clothing), spawn)
 		end)
-	end)
-end)
-
-
-
-AddEventHandler("ISRP_Characters:GetCharacterMoney", function(charid, callback)
-	local src = source
-		exports["externalsql"]:DBAsyncQuery({
-			string = "SELECT * FROM `characters` WHERE `id` = :char_id",
-			data = {
-				char_id = charid
-			}
-		}, function(results)
-		callback(results)
-	end)
-end)
-
-AddEventHandler("ISRP_Characters:LoadCharacterClothing", function(charid, callback)
-	local src = source
-	exports["externalsql"]:DBAsyncQuery({
-		string = "SELECT * FROM `characters` WHERE `id` = :char_id",
-		data = {
-			char_id = charid
-		}
-	}, function(results)
-		callback(results)
 	end)
 end)
 
