@@ -1,0 +1,579 @@
+<html>
+	<head>
+		<title>ISRP Character Menus</title>
+		<link rel="stylesheet" href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons'>
+        <link rel="stylesheet" href="libraries/vuetify.css">
+        <link rel="stylesheet" href="style.css">
+	</head>
+	<body>
+		
+		<v-app id="ISRP_Characters">
+			<v-content>
+				
+				<div id="ISRP_Characters_SelectCharacter" v-show="showCharacterSelector">
+					<div id="ISRP_Characters_SelectCharacter_Base">
+						<div id="ISRP_Characters_SelectCharacter_Header">
+							<v-btn color="red" absolute right top small fab dark @click=""><v-icon>close</v-icon></v-btn>
+							<v-btn color="green" absolute left top small fab dark @click="showCharacterCreator = !showCharacterCreator"><v-icon>person_add</v-icon></v-btn>
+							Character Selector
+						</div>
+						<div id="ISRP_Characters_SelectCharacter_Body">
+							<v-container fluid grid-list-xs>
+
+									<v-alert type="error" :value="characters.length <= 0">
+										No Characters Found
+									</v-alert>
+
+								<v-layout pa-1 row wrap>
+									<v-flex xs6 v-for="(character, characterIndex) in characters" :key="characterIndex">
+										<v-card style="border: 1px solid grey;">
+											<v-card-title primary-title>
+												<b>{{ character.name }}<br></b>
+										</v-card-title>
+										<v-card-text>
+											Age: {{ character.age }}<br>
+											Gender: {{ character.gender }}<br> 
+											Bank: ${{ character.bank }}<br>
+											Model: {{ character.model }}<br>
+											Phone Number: {{ character.phonenumber }}
+										</v-card-text>
+										<v-card-actions>
+												<v-btn color="green" block dark @click="SelectCharacter(characterIndex)">Play</v-btn>
+												<v-btn color="orange" small fab dark @click=""><v-icon>edit</v-icon></v-btn>
+												<v-btn color="cyan" small fab dark @click=""><v-icon>info</v-icon></v-btn>
+												<v-btn color="red" small fab dark @click="RequestDeleteCharacter(characterIndex)"><v-icon>delete</v-icon></v-btn>
+										</v-card-actions>
+										</v-card>
+									</v-flex>
+								</v-layout>
+							</v-container>
+
+							
+
+							
+							<div id="ISRP_Characters_ChangeLog">
+									<div id="ISRP_Characters_ChangeLog_Header">
+											Server Change Log
+										</div>
+										<div id="ISRP_Characters_ChangeLog_Body">
+											<v-container grid-list-md>
+												<div id="ChangeLogTitle">
+													00-00-00 #TheLaunch
+												</div>
+												<div id="ChangeLogData">
+													As The Crazy Russian Hacker Says: "FPS is our number 1 priority"
+												</div>
+											</v-container>
+										</div>
+									</div>
+
+							
+							<v-dialog v-model="showCharacterDelete" scrollable persistent :overlay="false" max-width="370px" transition="dialog-transition">
+								<v-card>
+									<v-card-title primary-title>
+										Are you sure you want to delete this character?
+									</v-card-title>
+									<v-card-text>
+										<v-container grid-list-xs>
+										<v-layout row>
+											<v-flex xs6>
+												<v-btn color="red" dark block @click="showCharacterDelete = false">No go back!</v-btn>
+											</v-flex>
+											<v-flex xs6>
+												<v-btn color="green" dark block @click="DeleteCharacter()">Yes I'm sure!</v-btn>
+											</v-flex>
+										</v-layout>
+									</v-container>
+									</v-card-text>
+								</v-card>
+							</v-dialog>
+
+				<v-dialog v-model="showCharacterCreator" scrollable persistent :overlay="false" max-width="900px" transition="dialog-transition">
+					<v-card>
+						<v-card-title primary-title>
+							Character Creation Form
+						</v-card-title>
+						<v-card-text>
+							<v-form ref="ISRPCreatorForm">
+								<v-container grid-list-xs>
+									<v-layout row>
+										<v-text-field label="First Name" v-model="selectedFirstname"></v-text-field>
+										<v-text-field label="Last Name" v-model="selectedLastname"></v-text-field>
+									</v-layout>
+									<v-layout row>
+										<v-select :items="genders" v-model="selectedGender" label="Gender"></v-select>
+									</v-layout>
+									<v-layout row>
+										<v-btn color="white" @click="selectedAge = selectedAge - 1"><v-icon>arrow_left</v-icon></v-btn>
+										<v-slider ref="formSlider" v-model="selectedAge" step="1" min="18" max="100"></v-slider>
+										<v-btn color="white" @click="selectedAge = selectedAge + 1"><v-icon>arrow_right</v-icon></v-btn>
+										<v-text-field disabled v-model="selectedAge"></v-text-field>
+									</v-layout>
+								</v-container>
+							</v-form>
+						</v-card-text>
+						<v-card-actions>
+							<v-layout row>
+								<v-btn color="green" dark block @click="CreateCharacter()"><v-icon>check</v-icon></v-btn>
+								<v-btn color="red" dark block @click="showCharacterCreator = !showCharacterCreator"><v-icon>close</v-icon></v-btn>
+							</v-layout>
+						</v-card-actions>
+					</v-card>
+				</v-dialog>
+
+				<v-dialog v-model="showCharacterModifier" scrollable persistent :overlay="false" max-width="900px" transition="dialog-transition">
+					<v-content>
+						<div id="Character_Start_Base">
+							<div id="Character_Start_Header">
+								Character Modification
+							</div>
+							<div id="Character_Start_Body">
+		
+								<v-tabs v-model="tab" color="blue" dark slider-color="primary" next-icon="arrow_right" prev-icon="arrow_left" grow>
+									<v-tab v-for="(tab, index) in tabs" :key="index">
+										{{ tab }}
+									</v-tab>
+		
+									<v-tab-item v-for="(tab, index) in tabs" :key="index">
+		
+										<div v-if="tab == 'MODEL'">
+											<v-select :items="models" v-model="model" label="Select Model" autocomplete></v-select>
+										</div>
+		
+										<div v-if="tab == 'FACE'">
+											<v-card>
+												<v-card-text>
+													<v-content>
+														<div id="character_label">DRAWABLE</div>
+														<v-layout row>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="DecreaseCompDraw('FACE', 1)"><v-icon>arrow_left</v-icon></v-btn>
+															</v-flex>
+															<v-flex xs6>
+																<v-slider v-model="components['FACE'].draw['current']" step="1" :min="components['FACE'].draw['min']" :max="components['FACE'].draw['max']" :label="components['FACE'].draw['current']" disabled></v-slider>
+															</v-flex>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="IncreaseCompDraw('FACE', 1)"><v-icon>arrow_right</v-icon></v-btn>
+															</v-flex>
+														</v-layout>
+													</v-content>
+												</v-card-text>
+											</v-card>
+										</div>
+		
+										<div v-if="tab == 'HEAD'">
+											<v-card>
+												<v-card-text>
+													<v-content>
+														<div id="character_label">DRAWABLE</div>
+														<v-layout row>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="DecreaseCompDraw('HEAD', 1)"><v-icon>arrow_left</v-icon></v-btn>
+															</v-flex>
+															<v-flex xs6>
+																<v-slider v-model="components['HEAD'].draw['current']" step="1" :min="components['HEAD'].draw['min']" :max="components['HEAD'].draw['max']" :label="components['HEAD'].draw['current']" disabled></v-slider>
+															</v-flex>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="IncreaseCompDraw('HEAD', 1)"><v-icon>arrow_right</v-icon></v-btn>
+															</v-flex>
+														</v-layout>
+		
+														<div id="character_label">TEXTURE</div>
+														<v-layout row>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="DecreaseCompText('HEAD', 1)"><v-icon>arrow_left</v-icon></v-btn>
+															</v-flex>
+															<v-flex xs6>
+																<v-slider v-model="components['HEAD'].text['current']" step="1" :min="components['HEAD'].text['min']" :max="components['HEAD'].text['max']" :label="components['HEAD'].text['current']" disabled></v-slider>
+															</v-flex>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="IncreaseCompText('HEAD', 1)"><v-icon>arrow_right</v-icon></v-btn>
+															</v-flex>
+														</v-layout>
+													</v-content>
+												</v-card-text>
+											</v-card>
+										</div>
+		
+										<div v-if="tab == 'HAIR'">
+											<v-card>
+												<v-card-text>
+													<v-content>
+														<div id="character_label">DRAWABLE</div>
+														<v-layout row>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="DecreaseCompDraw('HAIR', 1)"><v-icon>arrow_left</v-icon></v-btn>
+															</v-flex>
+															<v-flex xs6>
+																<v-slider v-model="components['HAIR'].draw['current']" step="1" :min="components['HAIR'].draw['min']" :max="components['HAIR'].draw['max']" :label="components['HAIR'].draw['current']" disabled></v-slider>
+															</v-flex>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="IncreaseCompDraw('HAIR', 1)"><v-icon>arrow_right</v-icon></v-btn>
+															</v-flex>
+														</v-layout>
+		
+														<div id="character_label">TEXTURE</div>
+														<v-layout row>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="DecreaseCompText('HAIR', 1)"><v-icon>arrow_left</v-icon></v-btn>
+															</v-flex>
+															<v-flex xs6>
+																<v-slider v-model="components['HAIR'].text['current']" step="1" :min="components['HAIR'].text['min']" :max="components['HAIR'].text['max']" :label="components['HAIR'].text['current']" disabled></v-slider>
+															</v-flex>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="IncreaseCompText('HAIR', 1)"><v-icon>arrow_right</v-icon></v-btn>
+															</v-flex>
+														</v-layout>
+													</v-content>
+												</v-card-text>
+											</v-card>
+										</div>
+		
+										<div v-if="tab == 'ARMS'">
+											<v-card>
+												<v-card-text>
+													<v-content>
+														<div id="character_label">DRAWABLE</div>
+														<v-layout row>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="DecreaseCompDraw('ARMS', 1)"><v-icon>arrow_left</v-icon></v-btn>
+															</v-flex>
+															<v-flex xs6>
+																<v-slider v-model="components['ARMS'].draw['current']" step="1" :min="components['ARMS'].draw['min']" :max="components['ARMS'].draw['max']" :label="components['ARMS'].draw['current']" disabled></v-slider>
+															</v-flex>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="IncreaseCompDraw('ARMS', 1)"><v-icon>arrow_right</v-icon></v-btn>
+															</v-flex>
+														</v-layout>
+		
+														<div id="character_label">TEXTURE</div>
+														<v-layout row>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="DecreaseCompText('ARMS', 1)"><v-icon>arrow_left</v-icon></v-btn>
+															</v-flex>
+															<v-flex xs6>
+																<v-slider v-model="components['ARMS'].text['current']" step="1" :min="components['ARMS'].text['min']" :max="components['ARMS'].text['max']" :label="components['ARMS'].text['current']" disabled></v-slider>
+															</v-flex>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="IncreaseCompText('ARMS', 1)"><v-icon>arrow_right</v-icon></v-btn>
+															</v-flex>
+														</v-layout>
+													</v-content>
+												</v-card-text>
+											</v-card>
+										</div>
+		
+										<div v-if="tab == 'LEGS'">
+											<v-card>
+												<v-card-text>
+													<v-content>
+														<div id="character_label">DRAWABLE</div>
+														<v-layout row>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="DecreaseCompDraw('LEGS', 1)"><v-icon>arrow_left</v-icon></v-btn>
+															</v-flex>
+															<v-flex xs6>
+																<v-slider v-model="components['LEGS'].draw['current']" step="1" :min="components['LEGS'].draw['min']" :max="components['LEGS'].draw['max']" :label="components['LEGS'].draw['current']" disabled></v-slider>
+															</v-flex>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="IncreaseCompDraw('LEGS', 1)"><v-icon>arrow_right</v-icon></v-btn>
+															</v-flex>
+														</v-layout>
+		
+														<div id="character_label">TEXTURE</div>
+														<v-layout row>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="DecreaseCompText('LEGS', 1)"><v-icon>arrow_left</v-icon></v-btn>
+															</v-flex>
+															<v-flex xs6>
+																<v-slider v-model="components['LEGS'].text['current']" step="1" :min="components['LEGS'].text['min']" :max="components['LEGS'].text['max']" :label="components['LEGS'].text['current']" disabled></v-slider>
+															</v-flex>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="IncreaseCompText('LEGS', 1)"><v-icon>arrow_right</v-icon></v-btn>
+															</v-flex>
+														</v-layout>
+													</v-content>
+												</v-card-text>
+											</v-card>
+										</div>
+		
+										<div v-if="tab == 'BAGS'">
+											<v-card>
+												<v-card-text>
+													<v-content>
+														<div id="character_label">DRAWABLE</div>
+														<v-layout row>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="DecreaseCompDraw('BAGS', 1)"><v-icon>arrow_left</v-icon></v-btn>
+															</v-flex>
+															<v-flex xs6>
+																<v-slider v-model="components['BAGS'].draw['current']" step="1" :min="components['BAGS'].draw['min']" :max="components['BAGS'].draw['max']" :label="components['BAGS'].draw['current']" disabled></v-slider>
+															</v-flex>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="IncreaseCompDraw('BAGS', 1)"><v-icon>arrow_right</v-icon></v-btn>
+															</v-flex>
+														</v-layout>
+		
+														<div id="character_label">TEXTURE</div>
+														<v-layout row>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="DecreaseCompText('BAGS', 1)"><v-icon>arrow_left</v-icon></v-btn>
+															</v-flex>
+															<v-flex xs6>
+																<v-slider v-model="components['BAGS'].text['current']" step="1" :min="components['BAGS'].text['min']" :max="components['BAGS'].text['max']" :label="components['BAGS'].text['current']" disabled></v-slider>
+															</v-flex>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="IncreaseCompText('BAGS', 1)"><v-icon>arrow_right</v-icon></v-btn>
+															</v-flex>
+														</v-layout>
+													</v-content>
+												</v-card-text>
+											</v-card>
+										</div>
+		
+										<div v-if="tab == 'SHOES'">
+											<v-card>
+												<v-card-text>
+													<v-content>
+														<div id="character_label">DRAWABLE</div>
+														<v-layout row>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="DecreaseCompDraw('SHOES', 1)"><v-icon>arrow_left</v-icon></v-btn>
+															</v-flex>
+															<v-flex xs6>
+																<v-slider v-model="components['SHOES'].draw['current']" step="1" :min="components['SHOES'].draw['min']" :max="components['SHOES'].draw['max']" :label="components['SHOES'].draw['current']" disabled></v-slider>
+															</v-flex>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="IncreaseCompDraw('SHOES', 1)"><v-icon>arrow_right</v-icon></v-btn>
+															</v-flex>
+														</v-layout>
+		
+														<div id="character_label">TEXTURE</div>
+														<v-layout row>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="DecreaseCompText('SHOES', 1)"><v-icon>arrow_left</v-icon></v-btn>
+															</v-flex>
+															<v-flex xs6>
+																<v-slider v-model="components['SHOES'].text['current']" step="1" :min="components['SHOES'].text['min']" :max="components['SHOES'].text['max']" :label="components['SHOES'].text['current']" disabled></v-slider>
+															</v-flex>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="IncreaseCompText('SHOES', 1)"><v-icon>arrow_right</v-icon></v-btn>
+															</v-flex>
+														</v-layout>
+													</v-content>
+												</v-card-text>
+											</v-card>
+										</div>
+		
+										<div v-if="tab == 'NECK'">
+											<v-card>
+												<v-card-text>
+													<v-content>
+														<div id="character_label">DRAWABLE</div>
+														<v-layout row>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="DecreaseCompDraw('NECK', 1)"><v-icon>arrow_left</v-icon></v-btn>
+															</v-flex>
+															<v-flex xs6>
+																<v-slider v-model="components['NECK'].draw['current']" step="1" :min="components['NECK'].draw['min']" :max="components['NECK'].draw['max']" :label="components['NECK'].draw['current']" disabled></v-slider>
+															</v-flex>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="IncreaseCompDraw('NECK', 1)"><v-icon>arrow_right</v-icon></v-btn>
+															</v-flex>
+														</v-layout>
+		
+														<div id="character_label">TEXTURE</div>
+														<v-layout row>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="DecreaseCompText('NECK', 1)"><v-icon>arrow_left</v-icon></v-btn>
+															</v-flex>
+															<v-flex xs6>
+																<v-slider v-model="components['NECK'].text['current']" step="1" :min="components['NECK'].text['min']" :max="components['NECK'].text['max']" :label="components['NECK'].text['current']" disabled></v-slider>
+															</v-flex>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="IncreaseCompText('NECK', 1)"><v-icon>arrow_right</v-icon></v-btn>
+															</v-flex>
+														</v-layout>
+													</v-content>
+												</v-card-text>
+											</v-card>
+										</div>
+		
+										<div v-if="tab == 'ACCESSORIES'">
+											<v-card>
+												<v-card-text>
+													<v-content>
+														<div id="character_label">DRAWABLE</div>
+														<v-layout row>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="DecreaseCompDraw('ACCESSORIES', 1)"><v-icon>arrow_left</v-icon></v-btn>
+															</v-flex>
+															<v-flex xs6>
+																<v-slider v-model="components['ACCESSORIES'].draw['current']" step="1" :min="components['ACCESSORIES'].draw['min']" :max="components['ACCESSORIES'].draw['max']" :label="components['ACCESSORIES'].draw['current']" disabled></v-slider>
+															</v-flex>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="IncreaseCompDraw('ACCESSORIES', 1)"><v-icon>arrow_right</v-icon></v-btn>
+															</v-flex>
+														</v-layout>
+		
+														<div id="character_label">TEXTURE</div>
+														<v-layout row>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="DecreaseCompText('ACCESSORIES', 1)"><v-icon>arrow_left</v-icon></v-btn>
+															</v-flex>
+															<v-flex xs6>
+																<v-slider v-model="components['ACCESSORIES'].text['current']" step="1" :min="components['ACCESSORIES'].text['min']" :max="components['ACCESSORIES'].text['max']" :label="components['ACCESSORIES'].text['current']" disabled></v-slider>
+															</v-flex>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="IncreaseCompText('ACCESSORIES', 1)"><v-icon>arrow_right</v-icon></v-btn>
+															</v-flex>
+														</v-layout>
+													</v-content>
+												</v-card-text>
+											</v-card>
+										</div>
+		
+										<div v-if="tab == 'VESTS'">
+											<v-card>
+												<v-card-text>
+													<v-content>
+														<div id="character_label">DRAWABLE</div>
+														<v-layout row>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="DecreaseCompDraw('VESTS', 1)"><v-icon>arrow_left</v-icon></v-btn>
+															</v-flex>
+															<v-flex xs6>
+																<v-slider v-model="components['VESTS'].draw['current']" step="1" :min="components['VESTS'].draw['min']" :max="components['VESTS'].draw['max']" :label="components['VESTS'].draw['current']" disabled></v-slider>
+															</v-flex>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="IncreaseCompDraw('VESTS', 1)"><v-icon>arrow_right</v-icon></v-btn>
+															</v-flex>
+														</v-layout>
+		
+														<div id="character_label">TEXTURE</div>
+														<v-layout row>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="DecreaseCompText('VESTS', 1)"><v-icon>arrow_left</v-icon></v-btn>
+															</v-flex>
+															<v-flex xs6>
+																<v-slider v-model="components['VESTS'].text['current']" step="1" :min="components['VESTS'].text['min']" :max="components['VESTS'].text['max']" :label="components['VESTS'].text['current']" disabled></v-slider>
+															</v-flex>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="IncreaseCompText('VESTS', 1)"><v-icon>arrow_right</v-icon></v-btn>
+															</v-flex>
+														</v-layout>
+													</v-content>
+												</v-card-text>
+											</v-card>
+										</div>
+		
+										<div v-if="tab == 'OVERLAYS'">
+											<v-card>
+												<v-card-text>
+													<v-content>
+														<div id="character_label">DRAWABLE</div>
+														<v-layout row>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="DecreaseCompDraw('OVERLAYS', 1)"><v-icon>arrow_left</v-icon></v-btn>
+															</v-flex>
+															<v-flex xs6>
+																<v-slider v-model="components['OVERLAYS'].draw['current']" step="1" :min="components['OVERLAYS'].draw['min']" :max="components['OVERLAYS'].draw['max']" :label="components['OVERLAYS'].draw['current']" disabled></v-slider>
+															</v-flex>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="IncreaseCompDraw('OVERLAYS', 1)"><v-icon>arrow_right</v-icon></v-btn>
+															</v-flex>
+														</v-layout>
+		
+														<div id="character_label">TEXTURE</div>
+														<v-layout row>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="DecreaseCompText('OVERLAYS', 1)"><v-icon>arrow_left</v-icon></v-btn>
+															</v-flex>
+															<v-flex xs6>
+																<v-slider v-model="components['OVERLAYS'].text['current']" step="1" :min="components['OVERLAYS'].text['min']" :max="components['OVERLAYS'].text['max']" :label="components['OVERLAYS'].text['current']" disabled></v-slider>
+															</v-flex>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="IncreaseCompText('OVERLAYS', 1)"><v-icon>arrow_right</v-icon></v-btn>
+															</v-flex>
+														</v-layout>
+													</v-content>
+												</v-card-text>
+											</v-card>
+										</div>
+		
+										<div v-if="tab == 'JACKETS'">
+											<v-card>
+												<v-card-text>
+													<v-content>
+														<div id="character_label">DRAWABLE</div>
+														<v-layout row>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="DecreaseCompDraw('JACKETS', 1)"><v-icon>arrow_left</v-icon></v-btn>
+															</v-flex>
+															<v-flex xs6>
+																<v-slider v-model="components['JACKETS'].draw['current']" step="1" :min="components['JACKETS'].draw['min']" :max="components['JACKETS'].draw['max']" :label="components['JACKETS'].draw['current']" disabled></v-slider>
+															</v-flex>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="IncreaseCompDraw('JACKETS', 1)"><v-icon>arrow_right</v-icon></v-btn>
+															</v-flex>
+														</v-layout>
+		
+														<div id="character_label">TEXTURE</div>
+														<v-layout row>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="DecreaseCompText('JACKETS', 1)"><v-icon>arrow_left</v-icon></v-btn>
+															</v-flex>
+															<v-flex xs6>
+																<v-slider v-model="components['JACKETS'].text['current']" step="1" :min="components['JACKETS'].text['min']" :max="components['JACKETS'].text['max']" :label="components['JACKETS'].text['current']" disabled></v-slider>
+															</v-flex>
+															<v-flex xs3>
+																<v-btn color="blue" dark @click="IncreaseCompText('JACKETS', 1)"><v-icon>arrow_right</v-icon></v-btn>
+															</v-flex>
+														</v-layout>
+													</v-content>
+												</v-card-text>
+											</v-card>
+										</div>
+		
+										<div v-if="tab == 'FINISH'">
+											<v-card>
+												<v-card-text>
+													<v-content>
+														<div id="character_label">Are you finished editing your character's appearance?</div>
+														<v-layout row>
+															<v-flex xs12>
+																<v-btn color="green" dark @click="FinishCharacter()" block><v-icon>done</v-icon>YES!</v-btn>
+															</v-flex>
+														</v-layout>
+													</v-content>
+												</v-card-text>
+											</v-card>
+										</div>
+		
+									</v-tab-item>
+								</v-tabs>
+								<div>
+									<v-container grid-list-md>
+										<v-layout row>
+											<v-flex xs6>
+												<v-btn color="blue" block dark @click="RotateCharacter(30)"><v-icon>rotate_left</v-icon></v-btn>
+											</v-flex>
+											<v-flex xs6>
+												<v-btn color="blue" block dark @click="RotateCharacter(-30)"><v-icon>rotate_right</v-icon></v-btn>
+											</v-flex>
+										</v-layout>
+									</v-container>
+								</div>
+							</div>
+						</div>
+					</v-content>
+			</v-app>
+
+			
+
+		<script src="libraries/axios.min.js"></script>
+        <script src="libraries/vue.min.js"></script>
+		<script src="libraries/vuetify.js"></script>
+		<script src="script.js"></script>
+	</body>
+</html>
