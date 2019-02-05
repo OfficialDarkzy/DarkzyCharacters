@@ -1,5 +1,5 @@
 # DarkzyCharacters
-This is a totally Custom Character Selection and Character Creation System made by myself and Xander1998
+This is a totally Custom Character Selection made by myself and Xander1998
 
 Please credit myself and @xander1998 and do not claim this code to be yours, this is part of our framework that has been a long project, so we thought it would be a good idea to show off our work and in hope you guys would like it. This is only a very small section of this framework... This is not guarantee to work as you do need a database system already working, this should work with ESX and ES SQL databases. This isnt just an out of the box system as this is very advanced so it isnt for the "givererupers" This will need things from you FIRST.
 
